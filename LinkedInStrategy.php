@@ -202,6 +202,7 @@ class LinkedInStrategy extends OpauthStrategy{
 	 * @param array $params the request parameters as an array of key=value pairs
 	 * @param string $useauth whether to use authentication when making the request. Default true.
 	 * @param string $multipart whether this request contains multipart data. Default false
+	 * @param string $hander Set to 'json' or 'xml' to parse JSON or XML-based output.
 	 */	
 	private function _request($method, $url, $params = array(), $useauth = true, $multipart = false, $handler = null){
 		$code = $this->tmhOAuth->request($method, $url, $params, $useauth, $multipart);
