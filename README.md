@@ -6,6 +6,37 @@ Opauth is a multi-provider authentication framework for PHP.
 
 Demo: http://opauth.org
 
+Getting started
+----------------
+1. Install Opauth-LinkedIn:
+   ```bash
+   cd path_to_opauth/Strategy
+   git clone git://github.com/uzyn/opauth-linkedin.git LinkedIn
+   ```
+
+2. Create LinkedIn application at https://www.linkedin.com/secure/developer
+   - Enter your domain at JavaScript API Domain  
+   - There is no need to enter OAuth Redirect URL
+	
+3. Configure Opauth-LinkedIn strategy with at least `qpi_key` and `secret_key`.
+
+4. Direct user to `http://path_to_opauth/linkedin` to authenticate
+
+Strategy configuration
+----------------------
+Required parameters:
+
+```php
+<?php
+'LinkedIn' => array(
+	'api_key' => 'YOUR API KEY',
+	'secret_key' => 'YOUR SECRET KEY'
+),
+```
+
+See LinkedInStrategy.php for optional parameters.
+
+
 Dependencies
 ------------
 Opauth-LinkedIn includes tmhOAuth, which requires hash_hmac and cURL.  
