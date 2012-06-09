@@ -40,12 +40,10 @@ class LinkedInStrategy extends OpauthStrategy{
 		// For LinkedIn
 		'request_token_url' => 'https://api.linkedin.com/uas/oauth/requestToken',
 		'authorize_url' => 'https://www.linkedin.com/uas/oauth/authenticate', // or 'https://www.linkedin.com/uas/oauth/authorize'
-		'access_token_url' => 'https://api.linkedin.com/uas/oauth/access_token',
-		/*
-		'verify_credentials_json_url' => 'https://api.twitter.com/1/account/verify_credentials.json',
-		'verify_credentials_skip_status' => true,
-		'twitter_profile_url' => 'http://twitter.com/{screen_name}',
-		*/
+		'access_token_url' => 'https://api.linkedin.com/uas/oauth/accessToken',
+		
+		'get_profile_url' => 'http://api.linkedin.com/v1/people/~',
+		'profile_fields' => array('id', 'first-name', 'last-name', 'formatted-name', 'headline', 'picture-url', 'summary', 'location', 'public-profile-url', 'site-standard-profile-request'),
 
 		// From tmhOAuth
 		'user_token'					=> '',
@@ -88,12 +86,10 @@ class LinkedInStrategy extends OpauthStrategy{
 		);
 		
 		$results =  $this->_request('POST', $this->strategy['request_token_url'], $params);
-		print_r($results);
-		exit();
 
 		if ($results !== false && !empty($results['oauth_token']) && !empty($results['oauth_token_secret'])){
 			session_start();
-			$_SESSION['_opauth_twitter'] = $results;
+			$_SESSION['_opauth_linkedin'] = $results;
 
 			$this->_authorize($results['oauth_token']);
 		}
@@ -104,8 +100,8 @@ class LinkedInStrategy extends OpauthStrategy{
 	 */
 	public function oauth_callback(){
 		session_start();
-		$session = $_SESSION['_opauth_twitter'];
-		unset($_SESSION['_opauth_twitter']);
+		$session = $_SESSION['_opauth_linkedin'];
+		unset($_SESSION['_opauth_linkedin']);
 
 		if ($_REQUEST['oauth_token'] == $session['oauth_token']){
 			$this->tmhOAuth->config['user_token'] = $session['oauth_token'];
@@ -114,36 +110,44 @@ class LinkedInStrategy extends OpauthStrategy{
 			$params = array(
 				'oauth_verifier' => $_REQUEST['oauth_verifier']
 			);
-		
+	
 			$results =  $this->_request('POST', $this->strategy['access_token_url'], $params);
-
+			
 			if ($results !== false && !empty($results['oauth_token']) && !empty($results['oauth_token_secret'])){
-				$credentials = $this->_verify_credentials($results['oauth_token'], $results['oauth_token_secret']);
-				
-				if (!empty($credentials['id'])){
-					
+				$profile = $this->_getProfile($results['oauth_token'], $results['oauth_token_secret']);
+		
+				if (!empty($profile['id'])){
 					$this->auth = array(
-						'uid' => $credentials['id'],
-						'info' => array(
-							'name' => $credentials['name'],
-							'nickname' => $credentials['screen_name'],
-							'location' => $credentials['location'],
-							'description' => $credentials['description'],
-							'image' => $credentials['profile_image_url'],
-							'urls' => array(
-								'twitter' => str_replace('{screen_name}', $credentials['screen_name'], $this->strategy['twitter_profile_url']),
-								'website' => $credentials['url']
-							)
-						),
+						'uid' => $profile['id'],
+						'info' => array(),
 						'credentials' => array(
 							'token' => $results['oauth_token'],
 							'secret' => $results['oauth_token_secret']
 						),
-						'raw' => $credentials
+						'raw' => $profile
 					);
+					
+					$this->mapProfile($profile, 'formatted-name', 'info.name');
+					$this->mapProfile($profile, 'first-name', 'info.first_name');
+					$this->mapProfile($profile, 'last-name', 'info.last_name');
+					$this->mapProfile($profile, 'headline', 'info.headline');
+					$this->mapProfile($profile, 'summary', 'info.description');
+					$this->mapProfile($profile, 'location.name', 'info.location');
+					$this->mapProfile($profile, 'picture-url', 'info.image');
+					$this->mapProfile($profile, 'public-profile-url', 'info.urls.linkedin');
+					$this->mapProfile($profile, 'site-standard-profile-request.url', 'info.urls.linkedin_authenticated');
 					
 					$this->callback();
 				}
+			}
+			else{
+				$error = array(
+					'code' => 'oauth_token_expected',
+					'message' => 'OAuth token and secret expected.',
+					'raw' => $results
+				);
+
+				$this->errorCallback($error);
 			}
 		}
 		else{
@@ -167,13 +171,19 @@ class LinkedInStrategy extends OpauthStrategy{
 		$this->clientGet($this->strategy['authorize_url'], $params);
 	}
 	
-	private function _verify_credentials($user_token, $user_token_secret){
+	private function _getProfile($user_token, $user_token_secret){
 		$this->tmhOAuth->config['user_token'] = $user_token;
 		$this->tmhOAuth->config['user_secret'] = $user_token_secret;
+
+		$url = $this->strategy['get_profile_url'];
+		if (!empty($this->strategy['profile_fields'])){
+			if (is_array($this->strategy['profile_fields']))
+				$url = $url.':('.implode(',',$this->strategy['profile_fields']).')';
+			else
+				$url = $url.':('.$this->strategy['profile_fields'].')';
+		}
 		
-		$params = array( 'skip_status' => $this->strategy['verify_credentials_skip_status'] );
-		
-		$response = $this->_request('GET', $this->strategy['verify_credentials_json_url'], $params);
+		$response = $this->_request('GET', $url, array(), true, false, 'xml');
 		
 		return $this->recursiveGetObjectVars($response);
 	}
