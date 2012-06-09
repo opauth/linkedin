@@ -1,0 +1,5 @@
+The included tmhOAuth library is slightly modified due to allow it to work with case-sensitive URLs for LinkedIn OAuth.
+
+tmhOAuth.php (line 247)
+-      $this->url = strtolower("$scheme://$host$path");
++      $this->url = "$scheme://$host$path";
