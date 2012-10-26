@@ -82,7 +82,8 @@ class LinkedInStrategy extends OpauthStrategy{
 	 */
 	public function request(){
 		$params = array(
-			'oauth_callback' => $this->strategy['oauth_callback']
+			'oauth_callback' => $this->strategy['oauth_callback'],
+			'scope' => $this->strategy['scope'],
 		);
 		
 		$results =  $this->_request('POST', $this->strategy['request_token_url'], $params);
