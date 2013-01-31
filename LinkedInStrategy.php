@@ -131,6 +131,7 @@ class LinkedInStrategy extends OpauthStrategy{
 					$this->mapProfile($profile, 'formatted-name', 'info.name');
 					$this->mapProfile($profile, 'first-name', 'info.first_name');
 					$this->mapProfile($profile, 'last-name', 'info.last_name');
+					$this->mapProfile($profile, 'email-address', 'info.email');
 					$this->mapProfile($profile, 'headline', 'info.headline');
 					$this->mapProfile($profile, 'summary', 'info.description');
 					$this->mapProfile($profile, 'location.name', 'info.location');
