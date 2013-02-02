@@ -43,7 +43,9 @@ class LinkedInStrategy extends OpauthStrategy{
 		'access_token_url' => 'https://api.linkedin.com/uas/oauth/accessToken',
 		
 		'get_profile_url' => 'http://api.linkedin.com/v1/people/~',
-		'profile_fields' => array('id', 'first-name', 'last-name', 'formatted-name', 'headline', 'picture-url', 'summary', 'location', 'public-profile-url', 'site-standard-profile-request'),
+		'scope' => 'r_basicprofile,r_emailaddress', // more details in http://developer.linkedin.com/documents/profile-fields
+		'profile_fields' => array('id', 'first-name', 'last-name', 'formatted-name', 'headline', 'picture-url', 'summary', 'location', 'public-profile-url', 'site-standard-profile-request', 'email-address'),
+
 
 		// From tmhOAuth
 		'user_token'					=> '',
