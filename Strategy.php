@@ -15,9 +15,6 @@
 namespace Opauth\Strategy\Linkedin;
 
 use Opauth\AbstractStrategy;
-use Opauth\HttpClient;
-use Opauth\Request;
-use Opauth\Response;
 
 /**
  * LinkedIn strategy for Opauth
@@ -178,7 +175,7 @@ class Strategy extends AbstractStrategy {
 			'oauth_token' => $oauth_token
 		);
 
-		HttpClient::redirect($this->strategy['authorize_url'], $params);
+		$this->http->redirect($this->strategy['authorize_url'], $params);
 	}
 
 	/**
