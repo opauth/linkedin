@@ -44,7 +44,7 @@ class Strategy extends AbstractStrategy {
 		'authorize_url' => 'https://www.linkedin.com/uas/oauth/authenticate', // or 'https://www.linkedin.com/uas/oauth/authorize'
 		'access_token_url' => 'https://api.linkedin.com/uas/oauth/accessToken',
 		'get_profile_url' => 'http://api.linkedin.com/v1/people/~',
-		'profile_fields' => array('id', 'first-name', 'last-name', 'formatted-name', 'headline', 'picture-url', 'summary', 'location', 'public-profile-url', 'site-standard-profile-request'),
+		'profile_fields' => array('id', 'first-name', 'last-name', 'formatted-name', 'headline', 'picture-url', 'summary', 'location', 'public-profile-url', 'site-standard-profile-request', 'email-address'),
 		// From tmhOAuth
 		'user_token' => '',
 		'user_secret' => '',
