@@ -12,7 +12,7 @@
  * @license      MIT License
  */
 
-namespace Opauth\Strategy\Linkedin;
+namespace Opauth\Strategy\LinkedIn;
 
 use Opauth\AbstractStrategy;
 

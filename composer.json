@@ -21,7 +21,7 @@
 		"themattharris/tmhoauth": "0.7.*"
 	},
 	"autoload": {
-		"psr-0": { "Opauth\\Strategy\\Linkedin": "" }
+		"psr-0": { "Opauth\\Strategy\\LinkedIn": "" }
 	},
-	"target-dir": "Opauth/Strategy/Linkedin"
+	"target-dir": "Opauth/Strategy/LinkedIn"
 }
