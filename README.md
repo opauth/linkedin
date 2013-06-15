@@ -2,6 +2,10 @@ Opauth-LinkedIn
 =============
 [Opauth][1] strategy for LinkedIn, implemented based on https://developer.linkedin.com/documents/authentication using OAuth.
 
+## Deprecated
+
+**Use the latest LinkedIn strategy that is based on OAuth 2**
+
 Opauth is a multi-provider authentication framework for PHP.
 
 Demo: http://opauth.org
@@ -15,9 +19,9 @@ Getting started
    ```
 
 2. Create LinkedIn application at https://www.linkedin.com/secure/developer
-   - Enter your domain at JavaScript API Domain  
+   - Enter your domain at JavaScript API Domain
    - There is no need to enter OAuth Redirect URL
-	
+
 3. Configure Opauth-LinkedIn strategy with at least `qpi_key` and `secret_key`.
 
 4. Direct user to `http://path_to_opauth/linkedin` to authenticate
@@ -39,12 +43,12 @@ See LinkedInStrategy.php for optional parameters.
 
 Dependencies
 ------------
-Opauth-LinkedIn includes tmhOAuth, which requires hash_hmac and cURL.  
+Opauth-LinkedIn includes tmhOAuth, which requires hash_hmac and cURL.
 hash_hmac is available on PHP 5 >= 5.1.2.
 
 License
 ---------
-Opauth-LinkedIn is MIT Licensed  
+Opauth-LinkedIn is MIT Licensed
 Copyright © 2012 U-Zyn Chua (http://uzyn.com)
 
 tmhOAuth is [Apache 2 licensed](https://github.com/themattharris/tmhOAuth/blob/master/LICENSE).
