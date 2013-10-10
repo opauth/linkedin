@@ -83,8 +83,8 @@ class Strategy extends AbstractStrategy {
 		'info.urls.linkedin_authenticated' => 'site-standard-profile-request.url'
 	);
 
-	public function __construct($config = array()) {
-		parent::__construct($config);
+	public function __construct($config = array(), $callbackUrl, $transport) {
+		parent::__construct($config, $callbackUrl, $transport);
 
 		$this->strategy['consumer_key'] = $this->strategy['api_key'];
 		$this->strategy['consumer_secret'] = $this->strategy['secret_key'];
