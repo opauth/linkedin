@@ -12,9 +12,9 @@
  * @license      MIT License
  */
 
-namespace Opauth\Strategy\LinkedIn;
+namespace Opauth\LinkedIn\Strategy;
 
-use Opauth\AbstractStrategy;
+use Opauth\Opauth\AbstractStrategy;
 
 /**
  * LinkedIn strategy for Opauth
@@ -22,7 +22,7 @@ use Opauth\AbstractStrategy;
  *
  * @package			Opauth.LinkedIn
  */
-class Strategy extends AbstractStrategy {
+class LinkedIn extends AbstractStrategy {
 
 	/**
 	 * Compulsory config keys, listed as unassociative arrays
