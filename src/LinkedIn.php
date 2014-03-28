@@ -101,7 +101,7 @@ class LinkedIn extends AbstractStrategy
         'info.urls.linkedin_authenticated' => 'site-standard-profile-request.url'
     );
 
-    public function __construct($config = array(), $callbackUrl, $transport)
+    public function __construct($config, $callbackUrl, $transport)
     {
         parent::__construct($config, $callbackUrl, $transport);
 
