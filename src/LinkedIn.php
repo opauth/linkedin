@@ -121,7 +121,7 @@ class LinkedIn extends AbstractStrategy
             //'scope' => $this->strategy['scope'],
         );
 
-        $results = $this->_request('POST', $this->strategy['request_token_url'], $params);
+        $results = $this->tmhRequest('POST', $this->strategy['request_token_url'], $params);
 
         if ($results === false || empty($results['oauth_token']) || empty($results['oauth_token_secret'])) {
             return $this->error(
@@ -133,7 +133,7 @@ class LinkedIn extends AbstractStrategy
 
         $this->sessionData($results);
 
-        $this->_authorize($results['oauth_token']);
+        $this->authorize($results['oauth_token']);
     }
 
     /**
@@ -150,7 +150,7 @@ class LinkedIn extends AbstractStrategy
             );
         }
 
-        $credentials = $this->_verify_credentials($results['oauth_token'], $results['oauth_token_secret']);
+        $credentials = $this->verifyCredentials($results['oauth_token'], $results['oauth_token_secret']);
 
         if ($credentials === false || empty($credentials['id'])) {
             return $this->error(
@@ -186,24 +186,24 @@ class LinkedIn extends AbstractStrategy
             'oauth_verifier' => $_REQUEST['oauth_verifier']
         );
 
-        return $this->_request('POST', $this->strategy['access_token_url'], $params);
+        return $this->tmhRequest('POST', $this->strategy['access_token_url'], $params);
     }
 
-    protected function _verify_credentials($user_token, $user_token_secret)
+    protected function verifyCredentials($user_token, $user_token_secret)
     {
         $this->tmhOAuth->config['user_token'] = $user_token;
         $this->tmhOAuth->config['user_secret'] = $user_token_secret;
 
         $url = $this->strategy['get_profile_url'];
         if (!empty($this->strategy['profile_fields'])) {
-            if (is_array($this->strategy['profile_fields']))
-                $url = $url . ':(' . implode(',', $this->strategy['profile_fields']) . ')';
-            else {
-                $url = $url . ':(' . $this->strategy['profile_fields'] . ')';
+            $fields = $this->strategy['profile_fields'];
+            if (is_array($fields)) {
+                $fields = implode(',', $fields);
             }
+            $url .= ':(' . $fields . ')';
         }
 
-        $response = $this->_request('GET', $url, array(), true, false, 'xml');
+        $response = $this->tmhRequest('GET', $url, array(), true, false, 'xml');
         if ($response === false) {
             return false;
         }
@@ -211,7 +211,7 @@ class LinkedIn extends AbstractStrategy
         return $this->recursiveGetObjectVars($response);
     }
 
-    private function _authorize($oauth_token)
+    protected function authorize($oauth_token)
     {
         $params = array(
             'oauth_token' => $oauth_token
@@ -230,11 +230,11 @@ class LinkedIn extends AbstractStrategy
      * @param string $method the HTTP method being used. e.g. POST, GET, HEAD etc
      * @param string $url the request URL without query string parameters
      * @param array $params the request parameters as an array of key=value pairs
-     * @param string $useauth whether to use authentication when making the request. Default true.
-     * @param string $multipart whether this request contains multipart data. Default false
+     * @param boolean|string $useauth whether to use authentication when making the request. Default true.
+     * @param boolean $multipart whether this request contains multipart data. Default false
      * @param string $hander Set to 'json' or 'xml' to parse JSON or XML-based output.
      */
-    private function _request($method, $url, $params = array(), $useauth = true, $multipart = false, $handler = null)
+    protected function tmhRequest($method, $url, $params = array(), $useauth = true, $multipart = false, $handler = '')
     {
         $code = $this->tmhOAuth->request($method, $url, $params, $useauth, $multipart);
 
@@ -242,7 +242,7 @@ class LinkedIn extends AbstractStrategy
             return false;
         }
 
-        if (is_null($handler)) {
+        if (empty($handler)) {
             if (strpos($url, '.json') !== false) {
                 $handler = 'json';
             } elseif (strpos($url, '.xml') !== false) {
@@ -257,5 +257,4 @@ class LinkedIn extends AbstractStrategy
         }
         return $this->tmhOAuth->extract_params($this->tmhOAuth->response['response']);
     }
-
 }
