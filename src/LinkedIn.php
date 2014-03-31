@@ -15,6 +15,7 @@
 namespace Opauth\LinkedIn\Strategy;
 
 use Opauth\Opauth\AbstractStrategy;
+use Opauth\Opauth\TransportInterface;
 
 /**
  * LinkedIn strategy for Opauth
@@ -101,7 +102,7 @@ class LinkedIn extends AbstractStrategy
         'info.urls.linkedin_authenticated' => 'site-standard-profile-request.url'
     );
 
-    public function __construct($config, $callbackUrl, $transport)
+    public function __construct($config, $callbackUrl, TransportInterface $transport)
     {
         parent::__construct($config, $callbackUrl, $transport);
 
