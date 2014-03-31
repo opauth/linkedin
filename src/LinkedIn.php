@@ -123,7 +123,11 @@ class LinkedIn extends AbstractStrategy
         $results = $this->_request('POST', $this->strategy['request_token_url'], $params);
 
         if ($results === false || empty($results['oauth_token']) || empty($results['oauth_token_secret'])) {
-            return $this->requestError();
+            return $this->error(
+                'Could not obtain token from request_token_url',
+                'token_request_failed',
+                $this->tmhOAuth->response['response']
+            );
         }
 
         $this->sessionData($results);
@@ -138,13 +142,21 @@ class LinkedIn extends AbstractStrategy
     {
         $results = $this->verifier();
         if ($results === false || empty($results['oauth_token']) || empty($results['oauth_token_secret'])) {
-            return $this->verifierError();
+            return $this->error(
+                'Oauth_verifier error.',
+                'oauth_verifier',
+                $this->tmhOAuth->response['response']
+            );
         }
 
         $credentials = $this->_verify_credentials($results['oauth_token'], $results['oauth_token_secret']);
 
         if ($credentials === false || empty($credentials['id'])) {
-            return $this->credentialsError();
+            return $this->error(
+                'Verify_credentials error.',
+                'verify_credentials',
+                $this->tmhOAuth->response['response']
+            );
         }
 
         $response = $this->response($credentials);
@@ -160,7 +172,11 @@ class LinkedIn extends AbstractStrategy
     {
         $session = $this->sessionData();
         if (empty($_REQUEST['oauth_token']) || $_REQUEST['oauth_token'] != $session['oauth_token']) {
-            return $this->deniedError();
+            return $this->error(
+                'User denied access.',
+                'access_denied',
+                $_GET
+            );
         }
 
         $this->tmhOAuth->config['user_token'] = $session['oauth_token'];
@@ -239,42 +255,6 @@ class LinkedIn extends AbstractStrategy
             return simplexml_load_string($this->tmhOAuth->response['response']);
         }
         return $this->tmhOAuth->extract_params($this->tmhOAuth->response['response']);
-    }
-
-    protected function requestError()
-    {
-        $error = array(
-            'code' => 'token_request_failed',
-            'message' => 'Could not obtain token from request_token_url',
-        );
-        return $this->response($this->tmhOAuth->response['response'], $error);
-    }
-
-    protected function deniedError()
-    {
-        $error = array(
-            'code' => 'access_denied',
-            'message' => 'User denied access.',
-        );
-        return $this->response($_GET, $error);
-    }
-
-    protected function verifierError()
-    {
-        $error = array(
-            'code' => 'oauth_verifier',
-            'message' => 'Oauth_verifier error.',
-        );
-        return $this->response($this->tmhOAuth->response['response'], $error);
-    }
-
-    protected function credentialsError()
-    {
-        $error = array(
-            'code' => 'verify_credentials',
-            'message' => 'Verify_credentials error.',
-        );
-        return $this->response($this->tmhOAuth->response['response'], $error);
     }
 
 }
