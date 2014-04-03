@@ -15,7 +15,7 @@
 namespace Opauth\LinkedIn\Strategy;
 
 use Opauth\Opauth\AbstractStrategy;
-use Opauth\Opauth\TransportInterface;
+use Opauth\Opauth\HttpClientInterface;
 
 /**
  * LinkedIn strategy for Opauth
@@ -102,9 +102,9 @@ class LinkedIn extends AbstractStrategy
         'info.urls.linkedin_authenticated' => 'site-standard-profile-request.url'
     );
 
-    public function __construct($config, $callbackUrl, TransportInterface $transport)
+    public function __construct($config, $callbackUrl, HttpClientInterface $client)
     {
-        parent::__construct($config, $callbackUrl, $transport);
+        parent::__construct($config, $callbackUrl, $client);
 
         $this->strategy['consumer_key'] = $this->strategy['api_key'];
         $this->strategy['consumer_secret'] = $this->strategy['secret_key'];
