@@ -217,7 +217,7 @@ class LinkedIn extends AbstractStrategy
             'oauth_token' => $oauth_token
         );
 
-        $this->http->redirect($this->strategy['authorize_url'], $params);
+        $this->redirect($this->strategy['authorize_url'], $params);
     }
 
     /**
