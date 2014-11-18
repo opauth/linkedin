@@ -89,7 +89,9 @@ class LinkedInStrategy extends OpauthStrategy{
 		$results =  $this->_request('POST', $this->strategy['request_token_url'], $params);
 
 		if ($results !== false && !empty($results['oauth_token']) && !empty($results['oauth_token_secret'])){
-			session_start();
+			if (session_status() == PHP_SESSION_NONE) {
+                session_start();
+            }
 			$_SESSION['_opauth_linkedin'] = $results;
 
 			$this->_authorize($results['oauth_token']);
@@ -100,7 +102,9 @@ class LinkedInStrategy extends OpauthStrategy{
 	 * Receives oauth_verifier, requests for access_token and redirect to callback
 	 */
 	public function oauth_callback(){
-		session_start();
+		if (session_status() == PHP_SESSION_NONE) {
+            session_start();
+        }
 		$session = $_SESSION['_opauth_linkedin'];
 		unset($_SESSION['_opauth_linkedin']);
 
