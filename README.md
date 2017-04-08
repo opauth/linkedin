@@ -11,7 +11,7 @@ Getting started
 1. Install Opauth-LinkedIn:
    ```bash
    cd path_to_opauth/Strategy
-   git clone git://github.com/uzyn/opauth-linkedin.git LinkedIn
+   git clone git://github.com/opauth/linkedin.git LinkedIn
    ```
 
 2. Create LinkedIn application at https://www.linkedin.com/secure/developer
