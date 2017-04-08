@@ -44,4 +44,4 @@ License
 Opauth-LinkedIn is MIT Licensed
 Copyright © U-Zyn Chua (http://uzyn.com)
 
-[1]: https://github.com/uzyn/opauth
+[1]: https://github.com/opauth/opauth
