@@ -104,8 +104,7 @@ class LinkedInStrategy extends OpauthStrategy{
 				$this->mapProfile($profile, 'site-standard-profile-request.url', 'info.urls.linkedin_authenticated');
 
 				$this->callback();
-			}
-			else{
+			} else {
 				$error = array(
 					'code' => 'access_token_error',
 					'message' => 'Failed when attempting to obtain access token',
@@ -117,8 +116,7 @@ class LinkedInStrategy extends OpauthStrategy{
 
 				$this->errorCallback($error);
 			}
-		}
-		else{
+		} else {
 			$error = array(
 				'code' => 'oauth2callback_error',
 				'raw' => $_GET
@@ -136,7 +134,25 @@ class LinkedInStrategy extends OpauthStrategy{
 	 */
 	private function getProfile($access_token){
 		if (empty($this->strategy['profile_fields'])) {
-			$this->strategy['profile_fields'] = array('id', 'first-name', 'last-name', 'maiden-name', 'formatted-name', 'headline', 'industry', 'summary', 'email-address', 'picture-url', 'location:(name)', 'public-profile-url', 'site-standard-profile-request');
+			// See https://developer.linkedin.com/docs/fields/basic-profile
+			$this->strategy['profile_fields'] = array(
+				'id',
+				'first-name',
+				'last-name',
+				'maiden-name',
+				'formatted-name',
+				'headline',
+				'industry',
+				'summary',
+				'email-address',
+				'positions',
+				'picture-url',
+				'picture-urls::(original)',
+				'location',
+				'api-standard-profile-request',
+				'public-profile-url',
+				'site-standard-profile-request'
+			);
 		}
 
 		if (is_array($this->strategy['profile_fields'])) {
@@ -149,8 +165,7 @@ class LinkedInStrategy extends OpauthStrategy{
 
 		if (!empty($userinfo)){
 			return $this->recursiveGetObjectVars(simplexml_load_string($userinfo));
-		}
-		else{
+		} else {
 			$error = array(
 				'code' => 'userinfo_error',
 				'message' => 'Failed when attempting to query for user information',
