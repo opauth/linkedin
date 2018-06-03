@@ -13,6 +13,10 @@ Getting started
    cd path_to_opauth/Strategy
    git clone git://github.com/opauth/linkedin.git LinkedIn
    ```
+   or
+   ```bash
+   composer require opauth/linkedin
+   ```
 
 2. Create LinkedIn application at https://www.linkedin.com/secure/developer
    - Enter your domain at JavaScript API Domain
