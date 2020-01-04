@@ -22,7 +22,7 @@ class LinkedInStrategy extends OpauthStrategy{
 	/**
 	 * Compulsory config keys, listed as unassociative arrays
 	 */
-	public $expects = array('api_key', 'secret_key');
+	public $expects = array('api_key', 'secret_key', 'scope');
 
 	/**
 	 * Optional config keys, without predefining any default values.
@@ -161,7 +161,7 @@ class LinkedInStrategy extends OpauthStrategy{
 			$fields = '(' . $this->strategy['profile_fields'] . ')';
 		}
 
-		$userinfo = $this->serverGet('https://api.linkedin.com/v1/people/~:' . $fields, array('oauth2_access_token' => $access_token), null, $headers);
+		$userinfo = $this->serverGet('https://api.linkedin.com/v2/people/~:' . $fields, array('oauth2_access_token' => $access_token), null, $headers);
 
 		if (!empty($userinfo)){
 			return $this->recursiveGetObjectVars(simplexml_load_string($userinfo));
