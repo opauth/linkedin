@@ -27,7 +27,7 @@ class LinkedInStrategy extends OpauthStrategy{
 	/**
 	 * Optional config keys, without predefining any default values.
 	 */
-	public $optionals = array('redirect_uri', 'scope', 'state', 'response_type');
+	public $optionals = array('redirect_uri', 'state', 'response_type');
 
 	/**
 	 * Optional config keys with respective default values, listed as associative arrays
