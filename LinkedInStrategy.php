@@ -48,7 +48,8 @@ class LinkedInStrategy extends OpauthStrategy{
 
 		$params = array(
 			'client_id' => $this->strategy['api_key'],
-			'state' => sha1(time())
+			'state' => sha1(time()),
+			'scope' => 'r_emailaddress r_liteprofile'
 		);
 
 		foreach ($this->optionals as $key){
@@ -92,19 +93,14 @@ class LinkedInStrategy extends OpauthStrategy{
 					'raw' => $profile
 				);
 
-				$this->mapProfile($profile, 'formatted-name', 'info.name');
-				$this->mapProfile($profile, 'first-name', 'info.first_name');
-				$this->mapProfile($profile, 'last-name', 'info.last_name');
-				$this->mapProfile($profile, 'email-address', 'info.email');
-				$this->mapProfile($profile, 'headline', 'info.headline');
-				$this->mapProfile($profile, 'summary', 'info.description');
-				$this->mapProfile($profile, 'location.name', 'info.location');
-				$this->mapProfile($profile, 'picture-url', 'info.image');
-				$this->mapProfile($profile, 'public-profile-url', 'info.urls.linkedin');
-				$this->mapProfile($profile, 'site-standard-profile-request.url', 'info.urls.linkedin_authenticated');
+				$this->mapProfile($profile, 'firstName', 'info.first_name');
+				$this->mapProfile($profile, 'lastName', 'info.last_name');
+				$this->mapProfile($profile, 'emailAddress', 'info.email');
+				$this->mapProfile($profile, 'profilePicture', 'info.image');
 
 				$this->callback();
-			} else {
+			}
+			else{
 				$error = array(
 					'code' => 'access_token_error',
 					'message' => 'Failed when attempting to obtain access token',
@@ -116,7 +112,8 @@ class LinkedInStrategy extends OpauthStrategy{
 
 				$this->errorCallback($error);
 			}
-		} else {
+		}
+		else{
 			$error = array(
 				'code' => 'oauth2callback_error',
 				'raw' => $_GET
@@ -131,41 +128,75 @@ class LinkedInStrategy extends OpauthStrategy{
 	 *
 	 * @param string $access_token
 	 * @return array Parsed JSON results
+	 * @link https://docs.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/sign-in-with-linkedin
+	 * @link https://docs.microsoft.com/en-us/linkedin/shared/references/v2/profile/basic-profile?context=linkedin/consumer/context
+	 * @link https://developer.linkedin.com/docs/ref/v2/profile/localized-profile
 	 */
 	private function getProfile($access_token){
+		$return = array();
+		$options = array(
+			'http' => array(
+				'method' => 'GET',
+				'header' => "Authorization: Bearer $access_token"
+			)
+		);
+
 		if (empty($this->strategy['profile_fields'])) {
-			// See https://developer.linkedin.com/docs/fields/basic-profile
-			$this->strategy['profile_fields'] = array(
-				'id',
-				'first-name',
-				'last-name',
-				'maiden-name',
-				'formatted-name',
-				'headline',
-				'industry',
-				'summary',
-				'email-address',
-				'positions',
-				'picture-url',
-				'picture-urls::(original)',
-				'location',
-				'api-standard-profile-request',
-				'public-profile-url',
-				'site-standard-profile-request'
+			$this->strategy['profile_fields'] = array('id', 'firstName', 'lastName', 'profilePicture(displayImage~:playableStreams)');
+		}
+		elseif (!is_array($this->strategy['profile_fields'])) {
+			$this->strategy['profile_fields'] = explode(',', $this->strategy['profile_fields']);
+		}
+
+		// Combine fields
+		$fields = '(' . implode(',', $this->strategy['profile_fields']) . ')';
+
+		// Get the email address.
+		$response = $this->httpRequest('https://api.linkedin.com/v2/emailAddress?q=members&projection=(elements*(handle~))', $options, $headers);
+		if (!empty($response)) {
+			$data = (array) json_decode($response, TRUE);
+			if (isset($data['elements'])) {
+				$data = $data['elements'][0];
+			}
+			$return['emailAddress'] = $data['handle~']['emailAddress'];
+		}
+		else{
+			$error = array(
+				'code' => 'userinfo_error',
+				'message' => 'Failed when attempting to query for user email information',
+				'raw' => array(
+					'response' => $userinfo,
+					'headers' => $headers
+				)
 			);
+
+			$this->errorCallback($error);
+			return;
 		}
 
-		if (is_array($this->strategy['profile_fields'])) {
-			$fields = '(' . implode(',', $this->strategy['profile_fields']) . ')';
-		} else {
-			$fields = '(' . $this->strategy['profile_fields'] . ')';
-		}
-
-		$userinfo = $this->serverGet('https://api.linkedin.com/v1/people/~:' . $fields, array('oauth2_access_token' => $access_token), null, $headers);
-
+		// Get other profile details.
+		$userinfo = $this->httpRequest('https://api.linkedin.com/v2/me?projection=' . $fields, $options, $headers);
 		if (!empty($userinfo)){
-			return $this->recursiveGetObjectVars(simplexml_load_string($userinfo));
-		} else {
+			$data = (array) json_decode($userinfo, TRUE);
+			if (isset($data['elements'])) {
+				$data = $data['elements'][0];
+			}
+			foreach ($data as $k => $v) {
+				if (is_string($v)) {
+					$return[$k] = $v;
+				}
+				elseif (isset($v['localized'])) {
+					$return[$k] = $v['localized'][$v['preferredLocale']['language'] . '_' . $v['preferredLocale']['country']];
+				}
+				elseif (isset($v['displayImage~'])) {
+					$return[$k] = $v['displayImage~']['elements'][0]['identifiers'][0]['identifier'];
+				}
+				else {
+					$return[$k] = $v;
+				}
+			}
+		}
+		else{
 			$error = array(
 				'code' => 'userinfo_error',
 				'message' => 'Failed when attempting to query for user information',
@@ -176,6 +207,9 @@ class LinkedInStrategy extends OpauthStrategy{
 			);
 
 			$this->errorCallback($error);
+			return;
 		}
+
+		return $return;
 	}
 }
